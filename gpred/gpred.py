@@ -89,12 +89,15 @@ def find_start(start_regex: Pattern, sequence: str, start: int, stop: int) -> Un
 def find_stop(stop_regex: Pattern, sequence: str, start: int) -> Union[int, None]:
     """Find next stop codon that should be in the same reading phase as the start.
 
-    :param stop_regexp: A regex object that identifies a stop codon.
+    :param stop_regex: A regex object that identifies a stop codon.
     :param sequence: (str) Sequence from the genome
     :param start: (int) Start position of the research
     :return: (int) If exist, position of the stop codon. Otherwise None. 
     """
-    pass
+    for match in stop_regex.finditer(sequence, start):
+        if (match.start(0) - start) % 3 == 0:
+            return match.start(0)
+    return None
 
 
 def has_shine_dalgarno(shine_regex: Pattern, sequence: str, start: int, max_shine_dalgarno_distance: int) -> bool:
