@@ -100,16 +100,28 @@ def find_stop(stop_regex: Pattern, sequence: str, start: int) -> Union[int, None
     return None
 
 
-def has_shine_dalgarno(shine_regex: Pattern, sequence: str, start: int, max_shine_dalgarno_distance: int) -> bool:
+def has_shine_dalgarno(
+    shine_regex: Pattern,
+    sequence: str,
+    start: int,
+    max_shine_dalgarno_distance: int,
+) -> bool:
     """Find a shine dalgarno motif before the start codon
 
-    :param shine_regexp: A regex object that identifies a shine-dalgarno motif.
+    :param shine_regex: A regex object that identifies a shine-dalgarno motif.
     :param sequence: (str) Sequence from the genome
     :param start: (int) Position of the start in the genome
-    :param max_shine_dalgarno_distance: (int) Maximum distance of the shine dalgarno to the start position
-    :return: (boolean) true -> has a shine dalgarno upstream to the gene, false -> no
+    :param max_shine_dalgarno_distance: (int) Maximum distance of the shine
+                                         dalgarno to the start position
+    :return: (boolean) true -> has a shine dalgarno upstream to the gene,
+                       false -> no
     """
-    pass
+    search_start = start - max_shine_dalgarno_distance
+    search_stop = start - 6
+    if search_start < 0:
+        return False
+    match = shine_regex.search(sequence, search_start, search_stop)
+    return match is not None
 
 
 def predict_genes(sequence: str, start_regex: Pattern, stop_regex: Pattern, shine_regex: Pattern, 
