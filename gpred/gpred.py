@@ -55,13 +55,21 @@ def get_arguments(): # pragma: no cover
     return parser.parse_args()
 
 
+
 def read_fasta(fasta_file: Path) -> str:
     """Extract genome sequence from fasta files.
 
     :param fasta_file: (Path) Path to the fasta file.
     :return: (str) Sequence from the genome. 
     """
-    pass
+    seq_parts = []
+    with open(fasta_file, "r") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line or line.startswith(">"):
+                continue
+            seq_parts.append(line.upper())
+    return "".join(seq_parts)
 
 
 def find_start(start_regex: Pattern, sequence: str, start: int, stop: int) -> Union[int, None]:
