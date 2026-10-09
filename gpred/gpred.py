@@ -55,7 +55,6 @@ def get_arguments(): # pragma: no cover
     return parser.parse_args()
 
 
-
 def read_fasta(fasta_file: Path) -> str:
     """Extract genome sequence from fasta files.
 
@@ -81,7 +80,10 @@ def find_start(start_regex: Pattern, sequence: str, start: int, stop: int) -> Un
     :param stop: (int) Stop position of the research
     :return: (int) If exist, position of the start codon. Otherwise None. 
     """
-    pass
+    match = start_regex.search(sequence, start, stop)
+    if match:
+        return match.start(0)
+    return None
 
 
 def find_stop(stop_regex: Pattern, sequence: str, start: int) -> Union[int, None]:
