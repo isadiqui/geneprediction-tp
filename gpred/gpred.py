@@ -124,20 +124,52 @@ def has_shine_dalgarno(
     return match is not None
 
 
-def predict_genes(sequence: str, start_regex: Pattern, stop_regex: Pattern, shine_regex: Pattern, 
-                  min_gene_len: int, max_shine_dalgarno_distance: int, min_gap: int) -> List:
+def predict_genes(
+    sequence: str,
+    start_regex: Pattern,
+    stop_regex: Pattern,
+    shine_regex: Pattern,
+    min_gene_len: int,
+    max_shine_dalgarno_distance: int,
+    min_gap: int,
+) -> List[List[int]]:
     """Predict most probable genes
 
     :param sequence: (str) Sequence from the genome.
-    :param start_regexp: A regex object that identifies a start codon.
-    :param stop_regexp: A regex object that identifies a stop codon.
-    :param shine_regexp: A regex object that identifies a shine-dalgarno motif.
+    :param start_regex: A regex object that identifies a start codon.
+    :param stop_regex: A regex object that identifies a stop codon.
+    :param shine_regex: A regex object that identifies a shine-dalgarno motif.
     :param min_gene_len: (int) Minimum gene length.
-    :param max_shine_dalgarno_distance: (int) Maximum distance of the shine dalgarno to the start position.
+    :param max_shine_dalgarno_distance: (int) Maximum distance of the shine
+                                         dalgarno to the start position.
     :param min_gap: (int) Minimum distance between two genes.
     :return: (list) List of [start, stop] position of each predicted genes.
     """
-    pass
+    gene_list = []
+    current_pos = 0
+    seq_len = len(sequence)
+
+    while seq_len - current_pos >= min_gap:
+        start_idx = find_start(start_regex, sequence, current_pos, seq_len)
+        if start_idx is not None:
+            stop_idx = find_stop(stop_regex, sequence, start_idx)
+            if stop_idx is not None:
+                gene_len = (stop_idx + 3) - start_idx
+                if gene_len >= min_gene_len:
+                    if has_shine_dalgarno(
+                        shine_regex,
+                        sequence,
+                        start_idx,
+                        max_shine_dalgarno_distance,
+                    ):
+                        gene_list.append([start_idx + 1, stop_idx + 3])
+                        current_pos = stop_idx + 3 + min_gap
+                        continue
+            current_pos = start_idx + 1
+        else:
+            current_pos += 1
+
+    return gene_list
 
 
 def write_genes_pos(predicted_genes_file: Path, probable_genes: List[List[int]]) -> None:
